@@ -1,0 +1,12 @@
+[
+    {
+        "model": "raterapi.playergame",
+        "pk": 1,
+        "fields": {
+            "game": 1,
+            "player": 1,
+            "review": "Best roll and write I have played. I love that every player has identical opportunities.",
+            "rating": 8
+        }
+    }
+]
