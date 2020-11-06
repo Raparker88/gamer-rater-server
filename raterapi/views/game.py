@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
 from raterapi.models import Game
+from raterapi.models import GameCategory
 
 
 class Games(ViewSet):
@@ -26,11 +27,22 @@ class Games(ViewSet):
         game.description = request.data["description"]
         game.time_to_play = request.data["time_to_play"]
         game.age_recommendation = request.data["age_recommendation"]
+        game.selected_categories = request.data["selected_categories"]
         
 
         try:
             game.save()
             serializer = GameSerializer(game, context={'request': request})
+
+            #iterate selected categories and save to database
+            for category in game.selected_categories:
+
+                gamecategory = GameCategory()
+                gamecategory.category_id = int(category["id"])
+                gamecategory.game_id = int(serializer.data["id"])
+                
+                gamecategory.save()
+                                
             return Response(serializer.data)
 
         except ValidationError as ex:
