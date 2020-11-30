@@ -1,5 +1,6 @@
 """View module for handling requests about games"""
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 from rest_framework import status
 from django.http import HttpResponseServerError
 from rest_framework.viewsets import ViewSet
@@ -101,11 +102,32 @@ class Reviews(ViewSet):
         """
         reviews = Review.objects.all()
 
+        # Support filtering reviews by game
+        #    http://localhost:8000/reviews?game=1
+        
+        game = self.request.query_params.get('game', None)
+        if game is not None:
+            reviews = reviews.filter(game_id=game)
+
         serializer = ReviewSerializer(
             reviews, many=True, context={'request': request})
         return Response(serializer.data)
 
-    
+class ReviewUserSerializer(serializers.HyperlinkedModelSerializer):
+    """JSON serializer for users"""
+
+    class Meta:
+        model = User
+        fields = ('username',)   
+
+class PlayerSerializer(serializers.HyperlinkedModelSerializer):
+    """JSON serializer for players"""
+
+    user = ReviewUserSerializer(many=False)
+
+    class Meta:
+        model = Player
+        fields = ('user',)    
 
 class ReviewSerializer(serializers.HyperlinkedModelSerializer):
     """JSON serializer for reviews
@@ -113,7 +135,9 @@ class ReviewSerializer(serializers.HyperlinkedModelSerializer):
     Arguments:
         serializer type
     """
+    player = PlayerSerializer(many=False)
+
     class Meta:
         model = Review
-        fields = ('id', 'url', 'player_id', 'game_id', 'review')
+        fields = ('id', 'url', 'player_id', 'game_id', 'review', 'player')
         depth = 1
