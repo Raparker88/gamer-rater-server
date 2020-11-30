@@ -6,7 +6,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
-from raterapi.models import Game
+from raterapi.models import Game, Player
 from raterapi.models import GameCategory
 
 
@@ -119,7 +119,7 @@ class Games(ViewSet):
             games, many=True, context={'request': request})
         return Response(serializer.data)
 
-
+    
 
 class GameSerializer(serializers.HyperlinkedModelSerializer):
     """JSON serializer for games
